@@ -1,1 +1,1 @@
-This is a sample helm chart meant to test publishing MG helm charts.
+This is a sample helm chart meant to test publishing MG helm charts
