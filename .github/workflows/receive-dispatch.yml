@@ -1,27 +1,48 @@
-name: Handle Repository Dispatch Event
+name: Handle Main Push Dispatch Event
 
 on:
   repository_dispatch:
-    types: [custom-test-event]
+    types: [main-push-event]
 
 jobs:
-  process_event:
+  process_main_push_event:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code (optional, for context)
+      - name: Checkout code (optional, if you need to interact with the repo files)
         uses: actions/checkout@v4
 
-      - name: Event Details
+      - name: Display Received Event Details
         run: |
-          echo "🎉 Received a repository_dispatch event!"
-          echo "Event type: ${{ github.event.action }}" # This will be 'custom-test-event'
-          echo "Triggered by: ${{ github.event.client_payload.triggered_by_repo }}"
-          echo "Commit SHA: ${{ github.event.client_payload.sha }}"
+          echo "🎉 Received a 'main-push-event' repository_dispatch!"
+          echo "Event type: ${{ github.event.action }}" # This will be 'main-push-event'
+          echo "--- Client Payload ---"
           echo "Message: ${{ github.event.client_payload.message }}"
-          echo "Tag: ${{ github.event.client_payload.tag }}"
+          echo "Triggered by Repo: ${{ github.event.client_payload.triggered_by_repo }}"
+          echo "Commit SHA: ${{ github.event.client_payload.commit_sha }}"
+          echo "Commit Message: ${{ github.event.client_payload.commit_message }}"
+          echo "Pusher Name: ${{ github.event.client_payload.pusher_name }}"
+          echo "Pusher Email: ${{ github.event.client_payload.pusher_email }}"
+          echo "-----------------------"
           
-          echo "Full client_payload JSON:"
-          echo "${{ toJSON(github.event.client_payload) }}"
+          echo "Full client_payload JSON received:"
+          echo '${{ toJSON(github.event.client_payload) }}' # Note the single quotes to prevent premature expansion
 
-      - name: Example Action
-        run: echo "Performing an example action based on the received event..."
+      - name: Example Action - Create a file
+        run: |
+          echo "Commit SHA: ${{ github.event.client_payload.commit_sha }}" > received_dispatch_info.txt
+          echo "Commit Message: ${{ github.event.client_payload.commit_message }}" >> received_dispatch_info.txt
+          echo "Pushed by: ${{ github.event.client_payload.pusher_name }}" >> received_dispatch_info.txt
+          echo "File created with received info."
+
+      # If you need to commit this file back to the helm-example repo:
+      # - name: Commit received info
+      #   uses: stefanzweifel/git-auto-commit-action@v5
+      #   with:
+      #     commit_message: "Docs: Update with info from main-push-event dispatch"
+      #     file_pattern: received_dispatch_info.txt
+      #     commit_user_name: "GitHub Actions Bot"
+      #     commit_user_email: "actions@github.com"
+      #     commit_author: "GitHub Actions Bot <actions@github.com>"
+
+      - name: Further Example Action
+        run: echo "Performing another example action based on the received event..."
