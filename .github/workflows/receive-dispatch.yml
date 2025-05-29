@@ -1,0 +1,27 @@
+name: Handle Repository Dispatch Event
+
+on:
+  repository_dispatch:
+    types: [custom-test-event]
+
+jobs:
+  process_event:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (optional, for context)
+        uses: actions/checkout@v4
+
+      - name: Event Details
+        run: |
+          echo "🎉 Received a repository_dispatch event!"
+          echo "Event type: ${{ github.event.action }}" # This will be 'custom-test-event'
+          echo "Triggered by: ${{ github.event.client_payload.triggered_by_repo }}"
+          echo "Commit SHA: ${{ github.event.client_payload.sha }}"
+          echo "Message: ${{ github.event.client_payload.message }}"
+          echo "Tag: ${{ github.event.client_payload.tag }}"
+          
+          echo "Full client_payload JSON:"
+          echo "${{ toJSON(github.event.client_payload) }}"
+
+      - name: Example Action
+        run: echo "Performing an example action based on the received event..."
